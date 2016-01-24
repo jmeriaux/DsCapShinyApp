@@ -1,0 +1,146 @@
+
+<style type="text/css">
+/*  CSS chunck 1  */
+.small-code pre code {
+  font-size: 1em;
+}
+
+th {  background-color:#E0E0E0 ;
+      border-bottom:1px solid black;
+      padding:5px;}
+
+td{
+border-bottom:1px dotted black;
+padding:5px;}
+
+table{ 
+border-collapse:collapse;
+margin:auto;
+ border: 1px solid black;}
+</style>
+ 
+
+
+Capstone project 
+========================================================
+author: JC Meriaux
+date: 1-24-2016
+
+The project
+===================================================
+<small>
+The end result is a proof of concept for a predictive typing application that can be used with any keyboard input. The predictive algorithm uses a NLP language model that computes the probability a word appearance giving the preceding trigram, bi-gram and unigram.
+</p>
+The prototype has been build in such a way that it can be used as a foundation (data and algorithm) to create a library or application that can be deployed on mobile devices with a small footprint (storage and memory).
+
+The same principle and algorithm can be applied to any sequences of user interactions, for predictive purpose, for example:
+  + Predict next menu or keyboard selection in a software tool. 
+  + Predict next sequences of action in virtual assistants. 
+</small>
+
+Data collection and prepraration
+========================================================
+<small>
+A text corpus of news, blogs, and tweets has been used as initial corpus. The variety of sources (e.g. tweets vs blogs) helps to make the prediction more general / robust.
+<p>
+Corpus summary:
+
+
+Source            |  Twitter    |  News        | Blog         |
+---------------------|-------------|--------------|--------------|   
+Lines                |  2,360,148  |  1,010,242   | 899,288      |
+Words                | 30,374,206  | 34,372,720   | 37,334,690   |
+Characters           | 167,105,338 | 205,811,889  | 210,160,014  |
+
+
+<small>
+- 10% of this corpus has been sampled, cleaned and tokenized  to create N-gram frequency tables used in the prediction algorithm.
+- For instance a tri-gram table is used to predict the probability of having a next word given the two preceding words / tokens.
+To have more details on the data loading and exploratory analysis you can 
+look at this [Rpubs report I posted in the previous assigmnent](http://rpubs.com/jcmeriaux/138677)
+</small>
+
+</small>
+
+
+Algorithm for predicting next words
+========================================================
+<small><small>
+I used an interpolation model combining the probabilities of the different N-Gram language models. Bigram, trigram, quadrigrams and top unigram tables were used for this purpose.
+For reference see [General linear interpolation of language models - Bo-June Hsu](https://groups.csail.mit.edu/sls/publications/2007/Hsu_ASRU.pdf).  
+<p> The probability of next word w based on preceding three words / token is:
+<math>
+    <mi>p&#770;(w) = </mi> 
+    <msub><mi>&lambda;</mi><mn>0</mn></msub>
+    <mi>&sdot;</mi>
+    <mi>p(w) + </mi> 
+    <msub><mi>&lambda;</mi><mn>1</mn></msub>
+    <mi>&sdot;</mi>
+    <msub><mi>p(w| w</mi><mn>1</mn></msub><mi>) + </mi> 
+    <msub><mi>&lambda;</mi><mn>2</mn></msub> 
+    <mi>&sdot;</mi>
+          <msub><mi>p(w| w</mi><mn>1</mn></msub>
+          <msub><mi>w</mi><mn>2</mn></msub>
+          <mi>) + </mi> 
+    <msub><mi>&lambda;</mi><mn>3</mn></msub>
+    <mi>&sdot;</mi>
+          <msub><mi>p(w |w</mi><mn>1</mn></msub>
+          <msub><mi>w</mi><mn>2</mn></msub>
+          <msub><mi>w</mi><mn>3</mn></msub>
+          <mi>)</mi> 
+          
+           
+<mi> with &sum;</mi>
+    <msub><mi>&lambda;</mi><mn>i</mn></msub>
+</math> = 1.  
+<p>
+Lamdba parameters are chosen to minimize the [perplexity](https://en.wikipedia.org/wiki/Perplexity) and increase the  [precision](https://en.wikipedia.org/wiki/Accuracy_and_precision). 
+  + The prediction function was run on an hold out (cross-validation) data set to find optimal lamdba parameters. I experimented with the maximum likelihood function <bold>mle</bold> for this purpose (stats4 package) 
+  + Performance on [third party benchmark](https://github.com/hfoffani/dsci-benchmark) data set: 12.7% for top-1 precision and 20.9% for top-3 precision.
+  + The next work prediction from a sentence was measured as taking 80ms on a laptop
+  + In the deployed application I used 
+<math>
+    <msub><mi> &lambda;</mi><mn>0</mn></msub>
+</math> = 0.1,
+<math>
+    <msub><mi> &lambda;</mi><mn>1</mn></msub>
+</math> = 0.3,
+<math>
+    <msub><mi> &lambda;</mi><mn>2</mn></msub>
+</math> = 0.4,
+<math>
+    <msub><mi> &lambda;</mi><mn>3</mn></msub>
+</math> = 0.2. 
+
+
+</small>
+</small>
+
+Prototype on Shiny.io 
+======================================
+<small>
+The [Shiny prototype](https://jmeriaux.shinyapps.io/DSCPPB/) is writen in R
+- Footprint
+  + Use R data table objects with small footprint (about 3.5Mb)
+  + Use as few library as possible (stringi) - easy to port on another language
+  + 130K quadrigrams, 224K trigrams, 97K bigrams, and 10 top unigrams. 
+- Server.R
+  + Source for Server.R is [here](https://github.com/jmeriaux/DsCapShinyApp/blob/master/server.R)
+  + Tokenization is done using stringi package for better performance
+  + Special tokens are introduced for numbers and beginning of sentence
+- UI.R: Source for UI.R is [here](https://github.com/jmeriaux/DsCapShinyApp/blob/master/ui.R)
+</small>
+
+Deployment and enhancements
+========================================================
+<small>
+Some considerations for moving this prototype to the next step:
+- Deployment consideration
+  + A compiled or pseudo-compiled langage with smaller footprint can be used (e.g. Objective C or Swift on iOS)
+  + Runtime algorithms are simple and can be ported to another programming language quite easily
+- Some implementation enhancements to consider
+  + Support multiple langugage: one set of N-Gram tables needs to be loaded for each language
+  + Improve profanity filters
+  + Improve algorithm by having a context dependent history weighting function as described in this [Cambridge University paper](http://svr-www.eng.cam.ac.uk/~xl207/publications/techs/tech-630-cntxlmia.pdf)
+</small>
+
