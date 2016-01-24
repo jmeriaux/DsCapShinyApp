@@ -7,7 +7,7 @@ otk_t <- readRDS('otk_t.rds');
 otk_q <- readRDS('otk_q.rds');
 top_u <- readRDS('top_u.rds');
 
-
+#Values for parameters Lambdba (interpolation)
 la0 <- 0.1;
 la1 <- 0.3;
 la2 <- 0.4;
@@ -22,6 +22,7 @@ lastgrams <- function( gram, proctext=TRUE )
 {
   #Process text if proctext=TRUE (text is already processed for )
   if (proctext == TRUE) {   
+    gram <- stri_replace_all_fixed(gram,"'","");
     gram <- unlist(stri_split_boundaries(gram, type="sentence"));  
     gram <- gsub(" [+-]?[0-9]?([,.-:0-9]*)?[.,]?[0-9]+"," zznumzz ",gram);  
     gram <- paste(stri_join("zzsebzz ", gram), collapse = "");
@@ -112,31 +113,31 @@ shinyServer(
      input$Sentence;
       stri_join(outp$res$val[1],"    p= ",round(outp$res$p[1], digits=4));  
       
-      })
+      });
     
     
     output$text2 <- renderText({ 
       input$Sentence; 
       stri_join(outp$res$val[2],"    p= ",round(outp$res$p[2], digits=4));  
       
-    }) 
+    });
 
     output$text3 <- renderText({ 
       input$Sentence; 
       stri_join(outp$res$val[3],"    p= ",round(outp$res$p[3], digits=4));  
         
-    })
+    });
     
       output$text4 <- renderText({ 
         input$Sentence; 
         stri_join(outp$res$val[4],"    p= ",round(outp$res$p[4], digits=4));  
         
-      })
+      });
     
       output$text5 <- renderText({ 
         input$Sentence; 
         stri_join(outp$res$val[5],"    p= ",round(outp$res$p[5], digits=4));  
         
-      })
+      });
     
     })

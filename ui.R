@@ -13,7 +13,7 @@ shinyUI(pageWithSidebar(
 
     mainPanel(
         tabsetPanel(type = "tabs", 
-                    tabPanel("Words", 
+                    tabPanel("Next Word Prediction", 
                              h3("Last 3 tokens extracted from sentence"),
                              textOutput('tokens'), 
                              h5("Note: zznumzz represents a number, and zzsebzz beginning of a sentence."),
@@ -26,14 +26,23 @@ shinyUI(pageWithSidebar(
                              textOutput('text5')
                                 ), 
                     
-                    tabPanel("Help", h4("Online documentation"),
-                             p("This application is based on a news, tweets and blog corpus."),
-                             p(""),
-                             p(""),
+
+                    
+                    tabPanel("Help", h4("Help and Examples"),
+                             p("This application is using a collection of unigrams, bigrams, trigrams and"),
+                             p("quadrigrams and an interpolation model to compute the most probable"),
+                             p("next words."),
+                             p("The sentence is tokenized and beginning of sentence and numbers"),
+                             p("are indentified as such and turned in specific tokens."),
                              br(),
-                             br(),
-                             p("The word cloud will refresh automatically.")
-                                                        ) )
+                             p("Using the application is very simple:"),
+                             p("- Type a sentence on the left"),
+                             p("- See the predicted words on the right!"),
+                             br(),     
+                             p("Try to type 'see you at 8' ... and 'am' or 'pm' will be in the top predictions."),
+                             p("Try to type 'I am so' ... and 'excited','happy' and 'glad' will be in the top predictions.")
+                    )
+                     )
 
   )
 ))
